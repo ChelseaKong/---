@@ -1,3 +1,5 @@
+学习Link：https://programmercarl.com/0977.%E6%9C%89%E5%BA%8F%E6%95%B0%E7%BB%84%E7%9A%84%E5%B9%B3%E6%96%B9.html
+
 ## 1. 977. Squares of a Sorted Array - easy
 
 Given an integer array nums sorted in non-decreasing order, return an array of the squares of each number sorted in non-decreasing order.
@@ -121,57 +123,49 @@ public:
 
 暴力解法：一个for循环循环滑动窗口的起始位置，一个for循环找滑动窗口的终止位置，两个for循环完成了一个不断搜索区间的过程。
 
-滑动窗口：**只用一个for循环**。
+滑动窗口：**只用一个for循环**。双指针的一种！
 
-3. **双指针法 - 快慢指针**
-   - 快指针：寻找新数组的元素，新数组就是不含有目标元素的数组
-   - 慢指针：指向更新新数组下标的位置
+- **窗口内是什么**
+  - 和 >=target 的长度最小的连续子数组
+- **如何移动起始位置**
+  - 如果当前窗口值大于target，则窗口就要向前移动（缩小窗口）
+- **如何移动结束位置**
+  - 结束位置即遍历数组的指针，也就是for循环里的索引
 
-```
-// 时间复杂度：O(n)
-// 空间复杂度：O(1)
-class Solution {  // 没有改变元素的相对位置
-public:
-    int removeElement(vector<int>& nums, int val) {
-        int slowIndex = 0;
-        for (int fastIndex = 0; fastIndex < nums.size(); fastIndex++) {
-            if (val != nums[fastIndex]) {
-                nums[slowIndex++] = nums[fastIndex];
-            }
-        }
-        return slowIndex;
-    }
-};
-```
+**本题关键在于：如何移动起始位置**
 
-3. 相向双指针法 - 一开始想到的做法，但实现过程不一样
+// 动态调节滑动窗口的起始位置
+
+**sum -= nums[i];**
+    
+**i++;**
+
+2. 代码
+
+时间复杂度：O(N) 空间复杂度：O(1)
 
 ```
-/**
-* 相向双指针方法，基于元素顺序可以改变的题目描述改变了元素相对位置，确保了移动最少元素
-* 时间复杂度：O(n)
-* 空间复杂度：O(1)
-*/
 class Solution {
 public:
-    int removeElement(vector<int>& nums, int val) {
-        int leftIndex = 0;
-        int rightIndex = nums.size() - 1;
-        while (leftIndex <= rightIndex) {
-            // 找左边等于val的元素
-            while (leftIndex <= rightIndex && nums[leftIndex] != val){
-                ++leftIndex;
-            }
-            // 找右边不等于val的元素
-            while (leftIndex <= rightIndex && nums[rightIndex] == val) {
-                -- rightIndex;
-            }
-            // 将右边不等于val的元素覆盖左边等于val的元素
-            if (leftIndex < rightIndex) {
-                nums[leftIndex++] = nums[rightIndex--];
+    int minSubArrayLen(int target, vector<int>& nums) {
+        int minLength = INT_MAX;
+        int sum = 0; // 滑动窗口数值之和
+        int i = 0; // 滑动窗口起始位置
+        for ( int j=0; j<nums.size(); j++ ) {
+            sum += nums[j];
+            // 注意这里使用while，每次更新 i（起始位置），并不断比较子序列是否符合条件
+            while ( sum >= target ) {
+                minLength = min( minLength, j-i+1 );
+                // 这里体现出滑动窗口的精髓之处，不断变更i（子序列的起始位置）
+                sum -= nums[i++];
             }
         }
-        return leftIndex;   // leftIndex一定指向了最终数组末尾的下一个元素
+        if ( minLength == INT_MAX ) {
+            minLength = 0;
+        }
+        return minLength;
     }
 };
 ```
+
+时间复杂度：O(N)。主要看每一个元素被操作的次数。每个元素在滑动窗后进来操作一次，出去操作一次，每个元素都是被操作两次，所以时间复杂度是 2 × N，也就是O(N)。
