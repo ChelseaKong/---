@@ -172,93 +172,32 @@ public:
 
 ## 3. Spiral Matrix II - medium ×
 
-Given an array of positive integers nums and a positive integer target, return the **minimal length** of a 
-**subarray** whose sum is greater than or equal to the target. If there is no such subarray, return 0 instead.
+Given a positive integer n, generate an n x n matrix filled with elements from 1 to $n^2$ in spiral order.
 
 Example 1:
 
-`Input: target = 7, nums = [2,3,1,2,4,3]`
+`Input: n = 3`
 
-`Output: 2`
+`Output: [[1,2,3],[8,9,4],[7,6,5]]`
 
-`Explanation: The subarray [4,3] has a minimal length under the problem constraint.`
+- 1 <= n <= 20
 
-- 0 <= target <= $10^9$
-- 1 <= nums.length <= $10^5$
-- 1 <= nums[i] <= $10^4$
+### 思路：没有想法
 
-Follow up: If you have figured out the O(n) solution, try coding another solution of which the time complexity is O(n log(n)).
+### 学习：
 
-### 思路：两层for循环 - 超时了 时间复杂度：O($N^2$) 空间复杂度：O(1)
+1. 本题是模拟过程，坚持**循环不变量原则**！
 
-```
-class Solution {
-public:
-    int minSubArrayLen(int target, vector<int>& nums) {
-        int minLength = INT_MAX, subSum = 0;
-        for ( int i=0; i<nums.size(); i++ ) {
-            subSum = 0;
-            for ( int j=i; j<nums.size(); j++ ) {
-                subSum += nums[j];
-                if ( subSum >= target ) {
-                    minLength = min( minLength, j-i+1 );
-                    break;
-                } 
-            }
-        }
-        if ( minLength == INT_MAX ) {
-            minLength = 0;
-        }
-        return minLength;
-    }
-};
-```
-
-### 学习：滑动窗口
-
-1. 滑动窗口：不断调节子序列的起始位置和终止位置，从而得出想要的结果。
-
-暴力解法：一个for循环循环滑动窗口的起始位置，一个for循环找滑动窗口的终止位置，两个for循环完成了一个不断搜索区间的过程。
-
-滑动窗口：**只用一个for循环**。双指针的一种！
-
-- **窗口内是什么**
-  - 和 >=target 的长度最小的连续子数组
-- **如何移动起始位置**
-  - 如果当前窗口值大于target，则窗口就要向前移动（缩小窗口）
-- **如何移动结束位置**
-  - 结束位置即遍历数组的指针，也就是for循环里的索引
-
-**本题关键在于：如何移动起始位置**
-
-// 动态调节滑动窗口的起始位置
-
-**sum -= nums[i];**
-    
-**i++;**
+模拟顺时针画矩阵的过程：（**四条边，每条边都坚持 左闭右开**）
+- 上行：从左到右
+- 右列：从上到下
+- 下行：从右到左
+- 左列：从下到上
 
 2. 代码
 
-时间复杂度：O(N) 空间复杂度：O(1)
+时间复杂度：O($N^2$) 空间复杂度：O(1)
 
 ```
-class Solution {
-public:
-    int minSubArrayLen(int target, vector<int>& nums) {
-        int minLength = INT_MAX;
-        int sum = 0; // 滑动窗口数值之和
-        int i = 0; // 滑动窗口起始位置
-        for ( int j=0; j<nums.size(); j++ ) {
-            sum += nums[j];
-            // 注意这里使用while，每次更新 i（起始位置），并不断比较子序列是否符合条件
-            while ( sum >= target ) {
-                minLength = min( minLength, j-i+1 );
-                // 这里体现出滑动窗口的精髓之处，不断变更i（子序列的起始位置）
-                sum -= nums[i++];
-            }
-        }
-        if ( minLength == INT_MAX ) {
-            minLength = 0;
-        }
-        return minLength;
-    }
+
+```
