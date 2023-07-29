@@ -72,20 +72,16 @@ public:
    - ②左闭右开
 
 2. **左闭右闭** - 时间复杂度 O（log N），空间复杂度  O（1）
-
-定义 target 在 [ left, right ] 这个区间里。left = 0, right = nums.size()-1
-
-- `while ( left <= right)`，left == right 是有意义的。
-- `if ( nums[middle] > target ) right = middle - 1;`，当前 middle 一定不是 target，那么之后要查找的区间为 **[ left, middle - 1 ]**
-- `if ( nums[middle] < target ) left = middle + 1;`，当前 middle 一定不是 target，那么之后要查找的区间为 **[ middle + 1, right ]**
+   定义 target 在 [ left, right ] 这个区间里。left = 0, right = nums.size()-1
+    - `while ( left <= right)`，left == right 是有意义的。
+    - `if ( nums[middle] > target ) right = middle - 1;`，当前 middle 一定不是 target，那么之后要查找的区间为 **[ left, middle - 1 ]**
+    - `if ( nums[middle] < target ) left = middle + 1;`，当前 middle 一定不是 target，那么之后要查找的区间为 **[ middle + 1, right ]**
 
 3. **左闭右开** - 时间复杂度 O（log N），空间复杂度  O（1）
-
-定义 target 在 [ left, right ) 这个区间里。left = 0, right = nums.size()
-
-- `while ( left < right)`，left == right 没有意义的。
-- `if ( nums[middle] > target ) right = middle;`，当前 middle 一定不是 target，那么之后要查找的区间为 **[ left, middle )**，即下一个查询区间不会去比较当前 middle 值
-- `if ( nums[middle] < target ) left = middle + 1;`，当前 middle 一定不是 target，那么之后要查找的区间为 **[ middle + 1, right )**
+   定义 target 在 [ left, right ) 这个区间里。left = 0, right = nums.size()
+    - `while ( left < right)`，left == right 没有意义的。
+    - `if ( nums[middle] > target ) right = middle;`，当前 middle 一定不是 target，那么之后要查找的区间为 **[ left, middle )**，即下一个查询区间不会去比较当前 middle 值
+    - `if ( nums[middle] < target ) left = middle + 1;`，当前 middle 一定不是 target，那么之后要查找的区间为 **[ middle + 1, right )**
 
 ## 3. 27. Remove Element - easy
 
@@ -141,51 +137,51 @@ public:
    - 快指针：寻找新数组的元素，新数组就是不含有目标元素的数组
    - 慢指针：指向更新新数组下标的位置
 
-```
-// 时间复杂度：O(n)
-// 空间复杂度：O(1)
-class Solution {  // 没有改变元素的相对位置
-public:
-    int removeElement(vector<int>& nums, int val) {
-        int slowIndex = 0;
-        for (int fastIndex = 0; fastIndex < nums.size(); fastIndex++) {
-            if (val != nums[fastIndex]) {
-                nums[slowIndex++] = nums[fastIndex];
-            }
-        }
-        return slowIndex;
-    }
-};
-```
+   ```
+   // 时间复杂度：O(n)
+   // 空间复杂度：O(1)
+   class Solution {  // 没有改变元素的相对位置
+   public:
+       int removeElement(vector<int>& nums, int val) {
+       int slowIndex = 0;
+       for (int fastIndex = 0; fastIndex < nums.size(); fastIndex++) {
+           if (val != nums[fastIndex]) {
+               nums[slowIndex++] = nums[fastIndex];
+           }
+       }
+       return slowIndex;
+       }
+   };
+   ```
 
 3. 相向双指针法 - 一开始想到的做法，但实现过程不一样
 
-```
-/**
-* 相向双指针方法，基于元素顺序可以改变的题目描述改变了元素相对位置，确保了移动最少元素
-* 时间复杂度：O(n)
-* 空间复杂度：O(1)
-*/
-class Solution {
-public:
-    int removeElement(vector<int>& nums, int val) {
-        int leftIndex = 0;
-        int rightIndex = nums.size() - 1;
-        while (leftIndex <= rightIndex) {
-            // 找左边等于val的元素
-            while (leftIndex <= rightIndex && nums[leftIndex] != val){
-                ++leftIndex;
+    ```
+    /**
+    * 相向双指针方法，基于元素顺序可以改变的题目描述改变了元素相对位置，确保了移动最少元素
+    * 时间复杂度：O(n)
+    * 空间复杂度：O(1)
+    */
+    class Solution {
+    public:
+        int removeElement(vector<int>& nums, int val) {
+            int leftIndex = 0;
+            int rightIndex = nums.size() - 1;
+            while (leftIndex <= rightIndex) {
+                // 找左边等于val的元素
+                while (leftIndex <= rightIndex && nums[leftIndex] != val){
+                    ++leftIndex;
+                }
+                // 找右边不等于val的元素
+                while (leftIndex <= rightIndex && nums[rightIndex] == val) {
+                    -- rightIndex;
+                }
+                // 将右边不等于val的元素覆盖左边等于val的元素
+                if (leftIndex < rightIndex) {
+                    nums[leftIndex++] = nums[rightIndex--];
+                }
             }
-            // 找右边不等于val的元素
-            while (leftIndex <= rightIndex && nums[rightIndex] == val) {
-                -- rightIndex;
-            }
-            // 将右边不等于val的元素覆盖左边等于val的元素
-            if (leftIndex < rightIndex) {
-                nums[leftIndex++] = nums[rightIndex--];
-            }
+            return leftIndex;   // leftIndex一定指向了最终数组末尾的下一个元素
         }
-        return leftIndex;   // leftIndex一定指向了最终数组末尾的下一个元素
-    }
-};
-```
+    };
+    ```
