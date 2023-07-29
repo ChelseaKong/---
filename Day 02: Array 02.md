@@ -55,30 +55,30 @@ public:
 
 1. 更简洁的代码
 
-vector<int> result(A.size(), 0);
+    vector<int> result(A.size(), 0);
 
-for (int i = 0, j = A.size() - 1; i <= j;) { // 注意这里要i <= j，因为最后要处理两个元素
+    for (int i = 0, j = A.size() - 1; i <= j;) { // 注意这里要i <= j，因为最后要处理两个元素
 
-```
-class Solution {
-public:
-    vector<int> sortedSquares(vector<int>& A) {
-        int k = A.size() - 1;
-        vector<int> result(A.size(), 0);
-        for (int i = 0, j = A.size() - 1; i <= j;) { // 注意这里要i <= j，因为最后要处理两个元素
-            if (A[i] * A[i] < A[j] * A[j])  {
-                result[k--] = A[j] * A[j];
-                j--;
+    ```
+    class Solution {
+    public:
+        vector<int> sortedSquares(vector<int>& A) {
+            int k = A.size() - 1;
+            vector<int> result(A.size(), 0);
+            for (int i = 0, j = A.size() - 1; i <= j;) { // 注意这里要i <= j，因为最后要处理两个元素
+                if (A[i] * A[i] < A[j] * A[j])  {
+                    result[k--] = A[j] * A[j];
+                    j--;
+                }
+                else {
+                    result[k--] = A[i] * A[i];
+                    i++;
+                }
             }
-            else {
-                result[k--] = A[i] * A[i];
-                i++;
-            }
+            return result;
         }
-        return result;
-    }
-};
-```
+    };
+    ```
 
 ## 2. 209. Minimum Size Subarray Sum - medium ×
 
@@ -128,54 +128,53 @@ public:
 
 1. 滑动窗口：不断调节子序列的起始位置和终止位置，从而得出想要的结果。
 
-暴力解法：一个for循环循环滑动窗口的起始位置，一个for循环找滑动窗口的终止位置，两个for循环完成了一个不断搜索区间的过程。
+    暴力解法：一个for循环循环滑动窗口的起始位置，一个for循环找滑动窗口的终止位置，两个for循环完成了一个不断搜索区间的过程。
 
-滑动窗口：**只用一个for循环**。双指针的一种！
+    滑动窗口：**只用一个for循环**。双指针的一种！
+     - **窗口内是什么**
+       - 和 >=target 的长度最小的连续子数组
+     - **如何移动起始位置**
+       - 如果当前窗口值大于target，则窗口就要向前移动（缩小窗口）
+     - **如何移动结束位置**
+       - 结束位置即遍历数组的指针，也就是for循环里的索引
 
-- **窗口内是什么**
-  - 和 >=target 的长度最小的连续子数组
-- **如何移动起始位置**
-  - 如果当前窗口值大于target，则窗口就要向前移动（缩小窗口）
-- **如何移动结束位置**
-  - 结束位置即遍历数组的指针，也就是for循环里的索引
+    **本题关键在于：如何移动起始位置**
 
-**本题关键在于：如何移动起始位置**
+    // 动态调节滑动窗口的起始位置
 
-// 动态调节滑动窗口的起始位置
-
-**sum -= nums[i];**
+    **sum -= nums[i];**
     
-**i++;**
+    **i++;**
 
 2. 代码
 
-时间复杂度：O(N) 空间复杂度：O(1)
+    时间复杂度：O(N) 空间复杂度：O(1)
 
-```
-class Solution {
-public:
-    int minSubArrayLen(int target, vector<int>& nums) {
-        int minLength = INT_MAX;
-        int sum = 0; // 滑动窗口数值之和
-        int i = 0; // 滑动窗口起始位置
-        for ( int j=0; j<nums.size(); j++ ) {
-            sum += nums[j];
-            // 注意这里使用while，每次更新 i（起始位置），并不断比较子序列是否符合条件
-            while ( sum >= target ) {
-                minLength = min( minLength, j-i+1 );
-                // 这里体现出滑动窗口的精髓之处，不断变更i（子序列的起始位置）
-                sum -= nums[i++];
+    ```
+    class Solution {
+    public:
+        int minSubArrayLen(int target, vector<int>& nums) {
+            int minLength = INT_MAX;
+            int sum = 0; // 滑动窗口数值之和
+            int i = 0; // 滑动窗口起始位置
+            for ( int j=0; j<nums.size(); j++ ) {
+                sum += nums[j];
+                // 注意这里使用while，每次更新 i（起始位置），并不断比较子序列是否符合条件
+                while ( sum >= target ) {
+                    minLength = min( minLength, j-i+1 );
+                    // 这里体现出滑动窗口的精髓之处，不断变更i（子序列的起始位置）
+                    sum -= nums[i++];
+                }
             }
+            if ( minLength == INT_MAX ) {
+                minLength = 0;
+            }
+            return minLength;
         }
-        if ( minLength == INT_MAX ) {
-            minLength = 0;
-        }
-        return minLength;
-    }
-};
-```
+    };
+    ```
 
-时间复杂度：O(N)。主要看每一个元素被操作的次数。每个元素在滑动窗后进来操作一次，出去操作一次，每个元素都是被操作两次，所以时间复杂度是 2 × N，也就是O(N)。
+    时间复杂度：O(N)。主要看每一个元素被操作的次数。每个元素在滑动窗后进来操作一次，出去操作一次，每个元素都是被操作两次，所以时间复杂度是 2 × N，也就是O(N)。
 
 ## 3. Spiral Matrix II - medium ×
 
@@ -195,67 +194,67 @@ Example 1:
 
 1. 本题是模拟过程，坚持**循环不变量原则**！
 
-模拟顺时针画矩阵的过程：（**四条边，每条边都坚持 左闭右开**）
-- 上行：从左到右
-- 右列：从上到下
-- 下行：从右到左
-- 左列：从下到上
+    模拟顺时针画矩阵的过程：（**四条边，每条边都坚持 左闭右开**）
+    - 上行：从左到右
+    - 右列：从上到下
+    - 下行：从右到左
+    - 左列：从下到上
 
 2. 代码
 
-时间复杂度：O($N^2$) 空间复杂度：O(1)
+    时间复杂度：O($N^2$) 空间复杂度：O(1)
 
-```
-class Solution {
-public:
-    vector<vector<int>> generateMatrix(int n) {
-        vector<vector<int>> ret( n, vector<int>( n, 0 ) );
-        int startX = 0, startY = 0; // 定义每循环一个圈的起始位置
-        int loop = n / 2; // 每个圈循环几次，例如n为奇数3，那么loop = 1 只是循环一圈，矩阵中间的值需要单独处理
-        int mid = n / 2; // 矩阵中间的位置，例如：n为3， 中间的位置就是(1，1)，n为5，中间位置为(2, 2)
-        int count = 1; // 用来给矩阵中每一个空格赋值
-        int offset = 1; // 需要控制每一条边遍历的长度，每次循环右边界收缩一位
-        int i = 0, j = 0;
+    ```
+    class Solution {
+    public:
+        vector<vector<int>> generateMatrix(int n) {
+            vector<vector<int>> ret( n, vector<int>( n, 0 ) );
+            int startX = 0, startY = 0; // 定义每循环一个圈的起始位置
+            int loop = n / 2; // 每个圈循环几次，例如n为奇数3，那么loop = 1 只是循环一圈，矩阵中间的值需要单独处理
+            int mid = n / 2; // 矩阵中间的位置，例如：n为3， 中间的位置就是(1，1)，n为5，中间位置为(2, 2)
+            int count = 1; // 用来给矩阵中每一个空格赋值
+            int offset = 1; // 需要控制每一条边遍历的长度，每次循环右边界收缩一位
+            int i = 0, j = 0;
         
-        while ( loop -- ) {
-            i = startX;
-            j = startY;
+            while ( loop -- ) {
+                i = startX;
+                j = startY;
 
-            // 下面开始的四个for就是模拟转了一圈
+                // 下面开始的四个for就是模拟转了一圈
 
-            // 模拟填充上行从左到右(左闭右开)
-            for ( j = startY; j < n - offset; j++ ) {
-                ret[startX][j] = count++;
+                // 模拟填充上行从左到右(左闭右开)
+                for ( j = startY; j < n - offset; j++ ) {
+                    ret[startX][j] = count++;
+                }
+
+                // 模拟填充右列从上到下(左闭右开)
+                for ( i = startX; i < n - offset; i++ ) {
+                    ret[i][j] = count ++;
+                }
+
+                // 模拟填充下行从右到左(左闭右开)
+                for ( ; j > startY; j-- ) {
+                    ret[i][j] = count ++;
+                }
+
+                // 模拟填充左列从下到上(左闭右开)
+                for ( ; i > startX; i-- ) {
+                    ret[i][j] = count ++;
+                }
+
+                // 第二圈开始的时候，起始位置要各自加1， 例如：第一圈起始位置是(0, 0)，第二圈起始位置是(1, 1)
+                startX ++;
+                startY ++;
+
+                // offset 控制每一圈里每一条边遍历的长度
+                offset += 1;
             }
 
-            // 模拟填充右列从上到下(左闭右开)
-            for ( i = startX; i < n - offset; i++ ) {
-                ret[i][j] = count ++;
+            // 如果n为奇数的话，需要单独给矩阵最中间的位置赋值
+            if ( n % 2 == 1 ) {
+                ret[mid][mid] = count;
             }
-
-            // 模拟填充下行从右到左(左闭右开)
-            for ( ; j > startY; j-- ) {
-                ret[i][j] = count ++;
-            }
-
-            // 模拟填充左列从下到上(左闭右开)
-            for ( ; i > startX; i-- ) {
-                ret[i][j] = count ++;
-            }
-
-            // 第二圈开始的时候，起始位置要各自加1， 例如：第一圈起始位置是(0, 0)，第二圈起始位置是(1, 1)
-            startX ++;
-            startY ++;
-
-            // offset 控制每一圈里每一条边遍历的长度
-            offset += 1;
+            return ret;
         }
-
-        // 如果n为奇数的话，需要单独给矩阵最中间的位置赋值
-        if ( n % 2 == 1 ) {
-            ret[mid][mid] = count;
-        }
-        return ret;
-    }
-};
-```
+    };
+    ```
