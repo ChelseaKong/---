@@ -77,34 +77,32 @@ Example 1:
 - 1 <= Node.val <= 50
 - 0 <= val <= 50
 
-### 思路：两层for循环 - 超时了 时间复杂度：O($N^2$) 空间复杂度：O(1)
+### 思路：在head前设置一个preHead，用来防止head->val=val。
 
 ```
 class Solution {
 public:
-    int minSubArrayLen(int target, vector<int>& nums) {
-        int minLength = INT_MAX, subSum = 0;
-        for ( int i=0; i<nums.size(); i++ ) {
-            subSum = 0;
-            for ( int j=i; j<nums.size(); j++ ) {
-                subSum += nums[j];
-                if ( subSum >= target ) {
-                    minLength = min( minLength, j-i+1 );
-                    break;
-                } 
+    ListNode* removeElements(ListNode* head, int val) {
+        ListNode *pre = new ListNode(), *cur = head;
+        ListNode *preHead = pre;
+        pre->next = head;
+        cur = head;
+        while ( cur != nullptr ) {
+            if ( cur->val == val ) {
+                pre->next = cur->next;
+            } else {
+                pre = cur;
             }
+            cur = cur->next;
         }
-        if ( minLength == INT_MAX ) {
-            minLength = 0;
-        }
-        return minLength;
+        return preHead->next;
     }
 };
 ```
 
-### 学习：滑动窗口
+### 学习：
 
-1. 滑动窗口：不断调节子序列的起始位置和终止位置，从而得出想要的结果。
+1. 两种方法
 
 暴力解法：一个for循环循环滑动窗口的起始位置，一个for循环找滑动窗口的终止位置，两个for循环完成了一个不断搜索区间的过程。
 
