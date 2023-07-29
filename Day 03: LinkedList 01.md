@@ -18,7 +18,7 @@
 3. 链表的定义
 
     ```
-   // 单链表
+    // 单链表
     struct ListNode {
         int val;  
         ListNode *next;  
@@ -103,154 +103,221 @@ public:
 ### 学习：
 
 1. 两种方法
+   - 直接用**原来的链表**进行删除操作
+     
+     移除头节点和移除其他节点的操作是不一样的！
+     
+   - 设置**一个虚拟头节点**再进行删除操作
 
-暴力解法：一个for循环循环滑动窗口的起始位置，一个for循环找滑动窗口的终止位置，两个for循环完成了一个不断搜索区间的过程。
-
-滑动窗口：**只用一个for循环**。双指针的一种！
-
-- **窗口内是什么**
-  - 和 >=target 的长度最小的连续子数组
-- **如何移动起始位置**
-  - 如果当前窗口值大于target，则窗口就要向前移动（缩小窗口）
-- **如何移动结束位置**
-  - 结束位置即遍历数组的指针，也就是for循环里的索引
-
-**本题关键在于：如何移动起始位置**
-
-// 动态调节滑动窗口的起始位置
-
-**sum -= nums[i];**
-    
-**i++;**
+     dummyHead
 
 2. 代码
+   - 原来的链表 时间复杂度：O(N) 空间复杂度：O(1)
 
-时间复杂度：O(N) 空间复杂度：O(1)
+     ```
+     class Solution {
+     public:
+        ListNode* removeElements(ListNode* head, int val) {
+           // 删除头结点
+           while (head != NULL && head->val == val) { // 注意这里不是if
+               ListNode* tmp = head;
+               head = head->next;
+               delete tmp; // 释放
+           }
+
+           // 删除非头结点
+           ListNode* cur = head;
+           while (cur != NULL && cur->next!= NULL) {
+               if (cur->next->val == val) {
+                   ListNode* tmp = cur->next;
+                   cur->next = cur->next->next;
+                   delete tmp;
+               } else {
+                   cur = cur->next;
+               }
+           }
+           return head;
+        }
+     };
+     ```
+     
+   - 一个虚拟头节点 时间复杂度：O(N) 空间复杂度：O(1)
+
+     ```
+     class Solution {
+     public:
+        ListNode* removeElements(ListNode* head, int val) {
+           ListNode* dummyHead = new ListNode(0); // 设置一个虚拟头结点
+           dummyHead->next = head; // 将虚拟头结点指向head，这样方面后面做删除操作
+           ListNode* cur = dummyHead;
+     
+           while (cur->next != NULL) {
+               if (cur->next->val == val) {
+                   ListNode* tmp = cur->next;
+                   cur->next = cur->next->next;
+                   delete tmp;
+               } else {
+                   cur = cur->next;
+               }
+           }
+           head = dummyHead->next;
+           delete dummyHead;
+           return head;
+        }
+     };
+     ```
+
+## 3. 707. Design Linked List - medium
+
+Link: https://leetcode.cn/problems/design-linked-list/
+
+- 0 <= index, val <= 1000
+- Please do not use the built-in LinkedList library.
+- At most 2000 calls will be made to get, addAtHead, addAtTail, addAtIndex and deleteAtIndex.
+
+### 思路：要记得定义ListNode！使用dummyHead
 
 ```
-class Solution {
+class MyLinkedList {
 public:
-    int minSubArrayLen(int target, vector<int>& nums) {
-        int minLength = INT_MAX;
-        int sum = 0; // 滑动窗口数值之和
-        int i = 0; // 滑动窗口起始位置
-        for ( int j=0; j<nums.size(); j++ ) {
-            sum += nums[j];
-            // 注意这里使用while，每次更新 i（起始位置），并不断比较子序列是否符合条件
-            while ( sum >= target ) {
-                minLength = min( minLength, j-i+1 );
-                // 这里体现出滑动窗口的精髓之处，不断变更i（子序列的起始位置）
-                sum -= nums[i++];
-            }
-        }
-        if ( minLength == INT_MAX ) {
-            minLength = 0;
-        }
-        return minLength;
+    struct ListNode {
+        int val;  
+        ListNode *next;  
+        ListNode(int x) : val(x), next(NULL) {}
+    };
+    ListNode *dummyHead;
+    int len;
+
+    MyLinkedList() {
+        dummyHead = new ListNode(0);
+        len = 0;
     }
-};
-```
-
-时间复杂度：O(N)。主要看每一个元素被操作的次数。每个元素在滑动窗后进来操作一次，出去操作一次，每个元素都是被操作两次，所以时间复杂度是 2 × N，也就是O(N)。
-
-## 2. 203. Remove Linked List Elements - easy
-
-Given an array of positive integers nums and a positive integer target, return the **minimal length** of a 
-**subarray** whose sum is greater than or equal to the target. If there is no such subarray, return 0 instead.
-
-Example 1:
-
-`Input: target = 7, nums = [2,3,1,2,4,3]`
-
-`Output: 2`
-
-`Explanation: The subarray [4,3] has a minimal length under the problem constraint.`
-
-- 0 <= target <= $10^9$
-- 1 <= nums.length <= $10^5$
-- 1 <= nums[i] <= $10^4$
-
-Follow up: If you have figured out the O(n) solution, try coding another solution of which the time complexity is O(n log(n)).
-
-### 思路：两层for循环 - 超时了 时间复杂度：O($N^2$) 空间复杂度：O(1)
-
-```
-class Solution {
-public:
-    int minSubArrayLen(int target, vector<int>& nums) {
-        int minLength = INT_MAX, subSum = 0;
-        for ( int i=0; i<nums.size(); i++ ) {
-            subSum = 0;
-            for ( int j=i; j<nums.size(); j++ ) {
-                subSum += nums[j];
-                if ( subSum >= target ) {
-                    minLength = min( minLength, j-i+1 );
-                    break;
-                } 
-            }
-        }
-        if ( minLength == INT_MAX ) {
-            minLength = 0;
-        }
-        return minLength;
-    }
-};
-```
-
-### 学习：滑动窗口
-
-1. 滑动窗口：不断调节子序列的起始位置和终止位置，从而得出想要的结果。
-
-暴力解法：一个for循环循环滑动窗口的起始位置，一个for循环找滑动窗口的终止位置，两个for循环完成了一个不断搜索区间的过程。
-
-滑动窗口：**只用一个for循环**。双指针的一种！
-
-- **窗口内是什么**
-  - 和 >=target 的长度最小的连续子数组
-- **如何移动起始位置**
-  - 如果当前窗口值大于target，则窗口就要向前移动（缩小窗口）
-- **如何移动结束位置**
-  - 结束位置即遍历数组的指针，也就是for循环里的索引
-
-**本题关键在于：如何移动起始位置**
-
-// 动态调节滑动窗口的起始位置
-
-**sum -= nums[i];**
     
-**i++;**
-
-2. 代码
-
-时间复杂度：O(N) 空间复杂度：O(1)
-
-```
-class Solution {
-public:
-    int minSubArrayLen(int target, vector<int>& nums) {
-        int minLength = INT_MAX;
-        int sum = 0; // 滑动窗口数值之和
-        int i = 0; // 滑动窗口起始位置
-        for ( int j=0; j<nums.size(); j++ ) {
-            sum += nums[j];
-            // 注意这里使用while，每次更新 i（起始位置），并不断比较子序列是否符合条件
-            while ( sum >= target ) {
-                minLength = min( minLength, j-i+1 );
-                // 这里体现出滑动窗口的精髓之处，不断变更i（子序列的起始位置）
-                sum -= nums[i++];
+    int get(int index) {
+        if ( index < 0 || index >= len ) {
+            return -1;
+        }
+        ListNode *cur = dummyHead;
+        for ( int i=0; i<=index; i++ ) { // 找到index这个节点
+            cur = cur->next;
+        }
+        return cur->val;
+    }
+    
+    void addAtHead(int val) {
+        ListNode *node = new ListNode(val);
+        node->next = dummyHead->next;
+        dummyHead->next = node;
+        len ++;
+    }
+    
+    void addAtTail(int val) {
+        ListNode *cur = dummyHead;
+        ListNode *node = new ListNode(val);
+        for ( int i=0; i<len; i++ ) { // index从0开始，则 i<len，找到最后一个节点
+            cur = cur->next;
+        }
+        cur->next = node;
+        len ++;
+    }
+    
+    void addAtIndex(int index, int val) {
+        if ( index < len ) {
+            ListNode *cur = dummyHead;
+            ListNode *node = new ListNode(val);
+            for ( int i=0; i<index; i++ ) { //找到index前面一个节点，在index这里插入
+                cur = cur->next;
             }
+            node->next = cur->next;
+            cur->next = node;
+            len ++;
+        } else if ( index == len ) {
+            addAtTail(val);
+        } else if ( index < 0 ) {
+            addAtHead(val);
+        } else {
+            return ;
         }
-        if ( minLength == INT_MAX ) {
-            minLength = 0;
+    }
+    
+    void deleteAtIndex(int index) {
+        if ( index < 0 || index >= len || len == 0 ) {
+            return ;
         }
-        return minLength;
+        
+        ListNode *cur = dummyHead;
+        for ( int i=0; i<index; i++ ) { //找到index前面一个节点，在index这里删除
+            cur = cur->next;
+        }
+        cur->next = cur->next->next;
+        len --;
     }
 };
 ```
 
-时间复杂度：O(N)。主要看每一个元素被操作的次数。每个元素在滑动窗后进来操作一次，出去操作一次，每个元素都是被操作两次，所以时间复杂度是 2 × N，也就是O(N)。
+### 学习：
 
-## 2. 203. Remove Linked List Elements - easy
+1. 代码不一样的点 - 时间复杂度: 涉及 index 的相关操作为 O(index), 其余为 O(1)。空间复杂度: O(n)
+
+   - for 变成 while
+
+   ```
+   while ( index -- ) { // int get(int index)
+      cur = cur->next; 
+   }
+
+   while(cur->next != nullptr){ // void addAtTail(int val)
+      cur = cur->next;
+   }
+   ```
+
+   - void addAtIndex(int index, int val)
+
+   ```
+   // 在第index个节点之前插入一个新节点，例如index为0，那么新插入的节点为链表的新头节点。
+   // 如果index 等于链表的长度，则说明是新插入的节点为链表的尾结点
+   // 如果index大于链表的长度，则返回空
+   // 如果index小于0，则在头部插入节点
+   void addAtIndex(int index, int val) {
+        if(index > len) return;
+        if(index < 0) index = 0;        
+        LinkedNode* newNode = new LinkedNode(val);
+        LinkedNode* cur = _dummyHead;
+        while( index-- ) {
+            cur = cur->next;
+        }
+        newNode->next = cur->next;
+        cur->next = newNode;
+        len++;
+   }
+   ```
+
+   - void deleteAtIndex(int index)
+
+   ```
+   LinkedNode* tmp = cur->next;
+   cur->next = cur->next->next;
+   delete tmp;
+   //delete命令指示释放了tmp指针原本所指的那部分内存，
+   //被delete后的指针tmp的值（地址）并非就是NULL，而是随机值。也就是被delete后，
+   //如果不再加上一句tmp=nullptr,tmp会成为乱指的野指针
+   //如果之后的程序不小心使用了tmp，会指向难以预想的内存空间
+   tmp=nullptr;
+   ```
+   
+2. 打印链表
+   ```
+   void printLinkedList() {
+        LinkedNode* cur = _dummyHead;
+        while (cur->next != nullptr) {
+            cout << cur->next->val << " ";
+            cur = cur->next;
+        }
+        cout << endl;
+   }
+   ```
+
+## 4. 206. Reverse Linked List - easy
 
 Given an array of positive integers nums and a positive integer target, return the **minimal length** of a 
 **subarray** whose sum is greater than or equal to the target. If there is no such subarray, return 0 instead.
