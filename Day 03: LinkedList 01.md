@@ -65,22 +65,17 @@
 
 ## 2. 203. Remove Linked List Elements - easy
 
-Given an array of positive integers nums and a positive integer target, return the **minimal length** of a 
-**subarray** whose sum is greater than or equal to the target. If there is no such subarray, return 0 instead.
+Given the head of a linked list and an integer val, remove all the nodes of the linked list that has Node.val == val, and return the new head.
 
 Example 1:
 
-`Input: target = 7, nums = [2,3,1,2,4,3]`
+`Input: head = [1,2,6,3,4,5,6], val = 6`
 
-`Output: 2`
+`Output: [1,2,3,4,5]`
 
-`Explanation: The subarray [4,3] has a minimal length under the problem constraint.`
-
-- 0 <= target <= $10^9$
-- 1 <= nums.length <= $10^5$
-- 1 <= nums[i] <= $10^4$
-
-Follow up: If you have figured out the O(n) solution, try coding another solution of which the time complexity is O(n log(n)).
+- The number of nodes in the list is in the range [0, $10^4$].
+- 1 <= Node.val <= 50
+- 0 <= val <= 50
 
 ### 思路：两层for循环 - 超时了 时间复杂度：O($N^2$) 空间复杂度：O(1)
 
