@@ -35,115 +35,63 @@
 
 ## 2. 242. Valid Anagram - easy
 
-Given the head of a linked list and an integer val, remove all the nodes of the linked list that has Node.val == val, and return the new head.
+Given two strings s and t, return true if t is an anagram of s, and false otherwise.
+
+An Anagram is a word or phrase formed by rearranging the letters of a different word or phrase, typically using all the original letters exactly once.
 
 Example 1:
 
-`Input: head = [1,2,6,3,4,5,6], val = 6`
+`Input: s = "anagram", t = "nagaram"`
 
-`Output: [1,2,3,4,5]`
+`Output: true`
 
-- The number of nodes in the list is in the range [0, $10^4$].
-- 1 <= Node.val <= 50
-- 0 <= val <= 50
+- 1 <= s.length, t.length <= 5 * $10^4$
+- s and t consist of lowercase English letters.
 
-### 思路：在head前设置一个preHead，用来防止head->val=val。
+Follow up: What if the inputs contain Unicode characters? How would you adapt your solution to such a case?
+
+### 思路：设一个计数数组cnt，s则增加，t则减少，cnt最终保持为0则为true。时间复杂度O(N)，空间复杂度O(1)
 
 ```
 class Solution {
 public:
-    ListNode* removeElements(ListNode* head, int val) {
-        ListNode *pre = new ListNode(), *cur = head;
-        ListNode *preHead = pre;
-        pre->next = head;
-        cur = head;
-        while ( cur != nullptr ) {
-            if ( cur->val == val ) {
-                pre->next = cur->next;
-            } else {
-                pre = cur;
-            }
-            cur = cur->next;
+    bool isAnagram(string s, string t) {
+        if ( s.size() != t.size() ) {
+            return false;
         }
-        return preHead->next;
+
+        int cnt[26] = {0};
+
+        for ( char c : s ) {
+            cnt[ c - 'a' ] ++;
+        }
+        for ( char c : t ) {
+            cnt[ c - 'a' ] --;
+        }
+        for ( int i=0; i<26; i++ ) {         
+            if ( cnt[i] != 0 ) {
+                return false;
+            }
+        }
+        return true;
     }
 };
 ```
 
-### 学习：
+### 学习：无
 
-1. 两种方法
-   - 直接用**原来的链表**进行删除操作
-     
-     移除头节点和移除其他节点的操作是不一样的！
-     
-   - 设置**一个虚拟头节点**再进行删除操作
+## 3. 349. Intersection of Two Arrays - easy
 
-     dummyHead
+Given two integer arrays nums1 and nums2, return an array of their intersection. Each element in the result must be unique and you may return the result in any order.
 
-2. 代码
-   - 原来的链表 时间复杂度：O(N) 空间复杂度：O(1)
+Example 1:
 
-     ```
-     class Solution {
-     public:
-        ListNode* removeElements(ListNode* head, int val) {
-           // 删除头结点
-           while (head != NULL && head->val == val) { // 注意这里不是if
-               ListNode* tmp = head;
-               head = head->next;
-               delete tmp; // 释放
-           }
+`Input: nums1 = [1,2,2,1], nums2 = [2,2]`
 
-           // 删除非头结点
-           ListNode* cur = head;
-           while (cur != NULL && cur->next!= NULL) {
-               if (cur->next->val == val) {
-                   ListNode* tmp = cur->next;
-                   cur->next = cur->next->next;
-                   delete tmp;
-               } else {
-                   cur = cur->next;
-               }
-           }
-           return head;
-        }
-     };
-     ```
-     
-   - 一个虚拟头节点 时间复杂度：O(N) 空间复杂度：O(1)
+`Output: [2]`
 
-     ```
-     class Solution {
-     public:
-        ListNode* removeElements(ListNode* head, int val) {
-           ListNode* dummyHead = new ListNode(0); // 设置一个虚拟头结点
-           dummyHead->next = head; // 将虚拟头结点指向head，这样方面后面做删除操作
-           ListNode* cur = dummyHead;
-     
-           while (cur->next != NULL) {
-               if (cur->next->val == val) {
-                   ListNode* tmp = cur->next;
-                   cur->next = cur->next->next;
-                   delete tmp;
-               } else {
-                   cur = cur->next;
-               }
-           }
-           head = dummyHead->next;
-           delete dummyHead;
-           return head;
-        }
-     };
-     ```
-
-## 3. 707. Design Linked List - medium
-
-Link: https://leetcode.cn/problems/design-linked-list/
-
-- 0 <= index, val <= 1000
-- Please do not use the built-in LinkedList library.
-- At most 2000 calls will be made to get, addAtHead, addAtTail, addAtIndex and deleteAtIndex.
+- 1 <= nums1.length, nums2.length <= 1000
+- 0 <= nums1[i], nums2[i] <= 1000
 
 ### 思路：要记得定义ListNode！使用dummyHead
 
